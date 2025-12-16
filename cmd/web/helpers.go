@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 // The serverError helper writes a log entry at Error level (including the request
@@ -35,13 +37,29 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 		app.serverError(w, r, err)
 		return
 	}
-	// Write out the provided HTTP status code ('200 OK', '400 Bad Request' etc).
-	w.WriteHeader(status)
-	// Выполните набор шаблонов и запишите тело ответа. Опять же, если возникает
-	// какая-либо ошибка, мы вызываем вспомогательную функцию serverError().
-	err := ts.ExecuteTemplate(w, "base", data)
+	// Initialize a new buffer.
+	buf := new(bytes.Buffer)
+	// Запишите шаблон в буфер, а не сразу в
+	// http.ResponseWriter. Если возникнет ошибка, вызовите нашу вспомогательную функцию serverError()
+	// и затем вернитесь.
+	err := ts.ExecuteTemplate(buf, "base", data)
 	if err != nil {
 		app.serverError(w, r, err)
+		return
 	}
+	// Если шаблон записан в буфер без ошибок, можно смело
+	// записывать код состояния HTTP в http.ResponseWriter.
+	w.WriteHeader(status)
+	// Запишите содержимое буфера в http.ResponseWriter.
+	// Примечание: это ещё один случай, когда мы передаём http.ResponseWriter в функцию,
+	// которая принимает io.Writer
+	buf.WriteTo(w)
+}
 
+// Создайте вспомогательную функцию newTemplateData(), которая возвращает структуру templateData,
+// инициализированную текущим годом.
+func (app *application) newTemplateData(r *http.Request) templateData {
+	return templateData{
+		CurrentYear: time.Now().Year(),
+	}
 }

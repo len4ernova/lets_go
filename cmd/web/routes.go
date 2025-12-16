@@ -3,7 +3,7 @@ package main
 import "net/http"
 
 // The routes() method returns a servemux containing our application routes.
-func (app *application) routes() *http.ServeMux {
+func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
@@ -11,5 +11,7 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
 	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
-	return mux
+	// Передайте servemux в качестве параметра next промежуточному программному обеспечению commonHeaders. // Поскольку commonHeaders — это просто функция, а функция возвращает
+	// http.Handler, нам больше ничего не нужно делать.
+	return app.recoverPanic(app.logRequest(commonHeaders(mux)))
 }
