@@ -47,13 +47,30 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "view.tmpl", data)
 }
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	// Create some variables holding dummy data. We'll remove these later on
-	// during the build.
-	title := "O snail"
-	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
-	expires := 7
-	// Pass the data to the SnippetModel.Insert() method, receiving the
-	// ID of the new record back.
+	// Сначала мы вызываем r.ParseForm(), который добавляет все данные из тела запроса POST
+	// в карту r.PostForm. То же самое происходит с запросами PUT и PATCH
+	// . Если возникают какие-либо ошибки, мы используем вспомогательную функцию app.ClientError()
+	// для отправки пользователю ответа 400 Bad Request
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	// Используйте метод r.PostForm.Get() для извлечения заголовка и содержимого
+	// из карты r.PostForm.
+	title := r.PostForm.Get("title")
+	content := r.PostForm.Get("content")
+	// Метод r.PostForm.Get() всегда возвращает данные формы в виде *строки*.
+	// Однако мы ожидаем, что значение expires будет числом, и хотим
+	//  представить его в нашем коде Go как целое число. Поэтому нам нужно
+	// вручную преобразовать данные формы в целое число с помощью
+	// strconv.Atoi(), и мы отправим ответ с кодом 400 «Неверный запрос»,
+	// если преобразование не удастся
+	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
 		app.serverError(w, r, err)
@@ -66,5 +83,6 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 // Change the signature of the snippetCreate handler so it is defined as a method
 // against *application.
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Display a form for creating a new snippet..."))
+	data := app.newTemplateData(r)
+	app.render(w, r, http.StatusOK, "create.tmpl", data)
 }
