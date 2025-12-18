@@ -1,19 +1,27 @@
-{{define "title"}}Home{{end}}
+{{define "title"}}Перечень работ{{end}}
 
 {{define "main"}}
     <h2>Latest works..</h2>
     {{if .Works}}
     <table>
         <tr>
+            <th>ID</th>
             <th>Title</th>
             <th>Created</th>
-            <th>ID</th>
+            <th>Description</th>
+            <th>ID GitLab</th>
+            <th>Path Gitlab</th>
+            <th>Visible</th>
         </tr>
         {{range .Works}}
         <tr>
+            <td>#{{.ID}}</td>
             <td><a href='/work/view/{{.ID}}'>{{.GLGroupTitle}}</a></td>
             <td>{{humanDate .GLGroupCreatedAt}}</td>
-            <td>#{{.ID}}</td>
+            <td>{{.GLGroupDescription}}</td>
+            <td>#{{.GLGroupID}}</td>
+            <td><a href='http://gitlab.iifrf.local/{{.GLGroupPath}}'>{{.GLGroupPath}}</a></td>
+            <td>#{{.Visible}}</td>
         </tr>
         {{end}}
     </table>

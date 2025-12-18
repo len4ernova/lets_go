@@ -15,7 +15,7 @@ func (app *application) serverError(w http.ResponseWriter, r *http.Request, err 
 		method = r.Method
 		uri    = r.URL.RequestURI()
 	)
-	app.logger.Error(err.Error(), "method", method, "uri", uri)
+	app.logger.Sugar().Errorf("%v %v %v %v %v", err.Error(), "method", method, "uri", uri)
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 

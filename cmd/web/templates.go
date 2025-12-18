@@ -9,8 +9,10 @@ import (
 
 type templateData struct {
 	CurrentYear int
-	Snippet     models.Snippet
-	Snippets    []models.Snippet
+	//Snippet     models.Snippet
+	//Snippets    []models.Snippet
+	Work  models.Work
+	Works []models.Work
 }
 
 // пользовательская ф-ия

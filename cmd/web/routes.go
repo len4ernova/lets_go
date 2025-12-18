@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/justinas/alice"
+)
 
 // The routes() method returns a servemux containing our application routes.
 func (app *application) routes() http.Handler {
@@ -8,9 +12,14 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 	mux.HandleFunc("GET /{$}", app.home)
-	mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
-	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
-	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
+	mux.HandleFunc("GET /work_glab", app.GetListWorks) // перечень всех работ
+	//mux.HandleFunc("GET /sync_glab", app.getGlabData)
+	mux.HandleFunc("GET /sync_glab", app.syncGlab) // TODO POST забрать по токену перечень групп с gitlab
+	//mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
+	mux.HandleFunc("GET /work/view/{id}", app.workView) // отобразить работу по id
+	// mux.HandleFunc("GET /snippet/create", app.snippetCreate)
+	mux.HandleFunc("GET /work/create", app.workCreate) // создать работу
+	//mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
 	// Передайте servemux в качестве параметра next промежуточному программному обеспечению commonHeaders. // Поскольку commonHeaders — это просто функция, а функция возвращает
 	// http.Handler, нам больше ничего не нужно делать.

@@ -1,16 +1,14 @@
-{{define "title"}}Snippet #{{.Snippet.ID}}{{end}}
+{{define "title"}}Работа #{{.Work.ID}}{{end}}
 {{define "main"}}
-    {{with .Snippet}}
+    {{with .Work}}
     <div class='snippet'>
         <div class='metadata'>
-            <strong>{{.Title}}</strong>
-            <span>#{{.ID}}</span>
+            <strong>{{.GLGroupTitle}} #{{.ID}}</strong>
+            <span><a href='http://gitlab.iifrf.local/{{.GLGroupPath}}'>(GitLab #{{.GLGroupID}} )</a></span>
         </div>
-        <pre><code>{{.Content}}</code></pre>
+        <pre><code>{{.GLGroupDescription}}</code></pre>
         <div class='metadata'>
-            <time>{{.Created | humanDate | printf "Created: %s"}}</time>
-            <time>Expires: {{humanDate .Expires}}</time>
-
+            <time>{{.GLGroupCreatedAt | humanDate | printf "Created: %s"}}</time>
         </div>
     </div>
     {{end}}

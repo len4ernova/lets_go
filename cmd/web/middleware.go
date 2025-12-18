@@ -25,7 +25,7 @@ func (app *application) logRequest(next http.Handler) http.Handler {
 			method = r.Method
 			uri    = r.URL.RequestURI()
 		)
-		app.logger.Info("received request", "ip", ip, "proto", proto, "method", method, "uri", uri)
+		app.logger.Sugar().Infof("received request: ip %v, proto %v, method %v, uri %v", ip, proto, method, uri)
 		next.ServeHTTP(w, r)
 	})
 }
