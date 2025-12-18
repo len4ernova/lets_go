@@ -61,13 +61,19 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+
+	// err := r.ParseForm()
+	// if err != nil {
+	// 	app.clientError(w, http.StatusBadRequest)
+	// 	return
+	// }
+	// Declare a new empty instance of the snippetCreateForm struct.
+	var form snippetCreateForm
+	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	// Declare a new empty instance of the snippetCreateForm struct.
-	var form snippetCreateForm
 	// Call the Decode() method of the form decoder, passing in the current
 	// request and *a pointer* to our snippetCreateForm struct. This will
 	// essentially fill our struct with the relevant values from the HTML form.
