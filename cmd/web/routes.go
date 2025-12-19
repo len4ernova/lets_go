@@ -13,8 +13,8 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 	mux.HandleFunc("GET /{$}", app.home)
 	mux.HandleFunc("GET /work_glab", app.GetListWorks) // перечень всех работ
-	//mux.HandleFunc("GET /sync_glab", app.getGlabData)
-	mux.HandleFunc("GET /sync_glab", app.syncGlab) // TODO POST забрать по токену перечень групп с gitlab
+	mux.HandleFunc("GET /sync_glab", app.syncGlab)
+	mux.HandleFunc("POST /sync_glab", app.runSyncGlab) // TODO POST забрать по токену перечень групп с gitlab
 	//mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
 	mux.HandleFunc("GET /work/view/{id}", app.workView) // отобразить работу по id
 	// mux.HandleFunc("GET /snippet/create", app.snippetCreate)

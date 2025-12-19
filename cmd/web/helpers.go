@@ -2,9 +2,12 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/go-playground/form/v4"
 )
 
 // The serverError helper writes a log entry at Error level (including the request
@@ -62,4 +65,28 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear: time.Now().Year(),
 	}
+}
+
+// Создаём новый вспомогательный метод decodePostForm(). Второй параметр, dst,
+// является целевым объектом, в который мы хотим преобразовать данные формы
+func (app *application) decodePostForm(r *http.Request, dst any) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+	// Вызовите Decode() для нашего экземпляра декодера, передав целевое назначение в качестве
+	// первого параметра
+	err = app.formDecoder.Decode(dst, r.PostForm)
+	if err != nil {
+		//Если мы попытаемся использовать недопустимый целевой объект, метод Decode()
+		// вернёт ошибку типа *form.InvalidDecoderError. Мы используем
+		// errors.As(), чтобы проверить это и вызвать панику, а не возвращать
+		// ошибку.
+		var InvalidDecoderError *form.InvalidDecoderError
+		if errors.As(err, &InvalidDecoderError) {
+			panic(err)
+		}
+		return err
+	}
+	return nil
 }

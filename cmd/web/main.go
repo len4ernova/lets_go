@@ -7,18 +7,18 @@ import (
 	"os"
 	"text/template"
 
+	"github.com/go-playground/form/v4"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	_ "modernc.org/sqlite"
 )
 
-// Add a snippets field to the application struct. This will allow us to
-// make the SnippetModel object available to our handlers.
 type application struct {
 	logger *zap.Logger
 	//snippets      *models.SnippetModel
 	works         *models.WorkModel
 	templateCache map[string]*template.Template
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -51,12 +51,15 @@ func main() {
 		logger.Sugar().Error(err.Error())
 		os.Exit(1)
 	}
+	//Initialize a decoder instance...
+	formDecoder := form.NewDecoder()
 	// add it to the application dependencies.
 	app := &application{
 		logger: logger,
 		//snippets:      &models.SnippetModel{DB: db},
 		works:         &models.WorkModel{DB: db},
 		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 	logger.Sugar().Info("starting server addr: ", *ip+*addr)
 	err = http.ListenAndServe(*ip+*addr, app.routes())

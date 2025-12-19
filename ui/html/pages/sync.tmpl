@@ -1,8 +1,15 @@
-{{define "title"}}Данные загруженные с gitlab {{end}}
+{{define "title"}}Запрос данных с Gitlab {{end}}
 {{define "main"}}
-   
-    <p>Sync... !</p>
-   
-
-
+<form action='/sync_glab' method='POST'>
+        <div>
+            <label>Token:</label>
+            {{with .Form.FieldErrors.token}}
+                <label class='error'>{{.}}</label>
+            {{end}}
+            <input type='text' name='token' value='{{.Form.Token}}'>
+        </div>
+        <div>
+            <input type='submit' value='Sync with Gitlab'>
+        </div>
+</form>
 {{end}}

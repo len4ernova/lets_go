@@ -5,6 +5,7 @@ go 1.24.0
 toolchain go1.24.11
 
 require (
+	github.com/go-playground/form/v4 v4.3.0
 	github.com/justinas/alice v1.2.0
 	go.uber.org/zap v1.27.1
 	modernc.org/sqlite v1.40.1

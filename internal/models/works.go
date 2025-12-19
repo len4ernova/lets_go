@@ -78,7 +78,7 @@ func (m *WorkModel) ListWorks(isAll bool) ([]Work, error) {
 	if isAll {
 		stmt = `SELECT work_id, glab_group_id, glab_group_title, glab_group_path, glab_group_created_at, glab_group_description, visible
 			FROM works
-			ORDER BY glab_group_title DESC`
+			ORDER BY glab_group_title ASC`
 	} else {
 		stmt = `SELECT work_id, glab_group_id, glab_group_title, glab_group_path, glab_group_created_at, glab_group_description, visible
 			FROM works

@@ -3,12 +3,19 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github/len4ernova/lets_go/internal/models"
+	"github/len4ernova/lets_go/internal/validator"
 	"strconv"
 
 	// "html/template"
 	"net/http"
 )
+
+type runSyncForm struct {
+	Token               string `form:"token"`
+	validator.Validator `form:"-"`
+}
 
 // home - домашняя страница, с последними 10 работами
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -35,12 +42,34 @@ func (app *application) GetListWorks(w http.ResponseWriter, r *http.Request) {
 }
 
 // syncGlab - синхронизация данных с Gitlab
-func (app *application) syncGlab(w http.ResponseWriter, r *http.Request) {
-	// todo добавить форму с токен
-	token := ""
-	ip := ""
+func (app *application) runSyncGlab(w http.ResponseWriter, r *http.Request) {
+	var form runSyncForm
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
-	groups, err := app.works.Sync(w, r, ip, token)
+	// form := runSyncForm{
+	// 	Token: r.PostForm.Get("token"),
+	// }
+	// fmt.Println("Token:", form.Token)
+	ip := "http://gitlab.iifrf.local/"
+	form.CheckField(validator.NotBlank(form.Token), "token", "This field cannot be blank")
+	form.CheckField(validator.MaxChars(form.Token, 50), "token", "This field cannot be more than 50 characters long")
+	fmt.Println("token 1", form)
+	// если ошибки валидации данных
+	if !form.Valid() {
+		fmt.Println("token 1 1")
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "sync.tmpl", data)
+		return
+	}
+
+	fmt.Println("token 1 2", form)
+	// если нет ошибок валидации
+	groups, err := app.works.Sync(w, r, ip, form.Token)
 	if err != nil {
 		app.serverError(w, r, err)
 	}
@@ -65,6 +94,7 @@ func (app *application) syncGlab(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 	}
+	http.Redirect(w, r, fmt.Sprintf("/work_glab"), http.StatusSeeOther)
 	// worksGlab, err := app.works.LatestWork(true)
 	// if err != nil {
 	// 	app.serverError(w, r, err)
@@ -81,6 +111,12 @@ func (app *application) syncGlab(w http.ResponseWriter, r *http.Request) {
 	// app.render(w, r, http.StatusOK, "sync.tmpl", data)
 
 	// TODO render
+}
+
+func (app *application) syncGlab(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	data.Form = runSyncForm{}
+	app.render(w, r, http.StatusOK, "sync.tmpl", data)
 }
 
 // workView - вывод работы по id
@@ -124,9 +160,9 @@ func (app *application) workView(w http.ResponseWriter, r *http.Request) {
 
 // Change the signature of the snippetCreate handler so it is defined as a method
 // against *application.
-func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Display a form for creating a new snippet..."))
-}
+// func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
+// 	w.Write([]byte("Display a form for creating a new snippet..."))
+// }
 
 // workCreate - создать работу.
 func (app *application) workCreate(w http.ResponseWriter, r *http.Request) {

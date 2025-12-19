@@ -13,6 +13,7 @@ type templateData struct {
 	//Snippets    []models.Snippet
 	Work  models.Work
 	Works []models.Work
+	Form  any
 }
 
 // пользовательская ф-ия
