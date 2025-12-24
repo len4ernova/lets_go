@@ -67,8 +67,15 @@ func main() {
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 	}
-	logger.Info("starting server", "addr", *addr)
-	err = http.ListenAndServe(*addr, app.routes())
+	// Initialize a new http.Server struct. We set the Addr and Handler fields so
+	// that the server uses the same network address and routes as befor
+	srv := &http.Server{
+		Addr:     *addr,
+		Handler:  app.routes(),
+		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	}
+	logger.Info("starting server", "addr", srv.Addr)
+	err = srv.ListenAndServe()
 	logger.Error(err.Error())
 	os.Exit(1)
 }
