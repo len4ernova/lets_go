@@ -39,6 +39,11 @@ func (app *application) routes() http.Handler {
 	// ... etc
 	//return app.recoverPanic(app.logRequest(commonHeaders(mux)))
 
+	mux.Handle("GET /user/signup", dynamic.ThenFunc(app.userSignup))
+	mux.Handle("POST /user/signup", dynamic.ThenFunc(app.userSignupPost))
+	mux.Handle("GET /user/login", dynamic.ThenFunc(app.userLogin))
+	mux.Handle("POST /user/login", dynamic.ThenFunc(app.userLoginPost))
+	mux.Handle("POST /user/logout", dynamic.ThenFunc(app.userLogoutPost))
 	// Создаём цепочку промежуточного программного обеспечения, содержащую наше «стандартное» промежуточное ПО,
 	// которое будет использоваться для каждого запроса, поступающего в наше приложение
 	standart := alice.New(app.recoverPanic, app.logRequest, commonHeaders)
