@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github/len4ernova/lets_go/ui"
 	"net/http"
 
 	"github.com/justinas/alice"
@@ -9,8 +10,9 @@ import (
 // The routes() method returns a servemux containing our application routes.
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
+	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
+	// fileServer := http.FileServer(http.Dir("./ui/static/"))
+	// mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 	// Add the authenticate() middleware to the chain.
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))

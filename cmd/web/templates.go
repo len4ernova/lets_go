@@ -2,6 +2,8 @@ package main
 
 import (
 	"github/len4ernova/lets_go/internal/models"
+	"github/len4ernova/lets_go/ui"
+	"io/fs"
 	"path/filepath"
 	"text/template"
 	"time"
@@ -31,11 +33,11 @@ var functions = template.FuncMap{
 func newTemplateCache() (map[string]*template.Template, error) {
 	// Initialize a new map to act as the cache.
 	cache := map[string]*template.Template{}
-	// Используйте функцию filepath.Glob(), чтобы получить список всех путей к файлам,
+	// Используйте функцию fs.Glob(), чтобы получить список всех путей к файлам,
 	// соответствующих шаблону "./ui/html/pages/*.tmpl". По сути, это даст
 	// нам список всех путей к файлам для шаблонов страниц нашего приложения,
 	// например: [ui/html/pages/home.tmpl, ui/html/pages/view.tmpl]
-	pages, err := filepath.Glob("./ui/html/pages/*.tmpl")
+	pages, err := fs.Glob(ui.Files, "html/pages/*.tmpl")
 	if err != nil {
 		return nil, err
 	}
@@ -44,25 +46,21 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		// Извлечь имя файла (например, 'home.tmpl') из полного пути к файлу
 		// // и присвоить его переменной name.
 		name := filepath.Base(page)
-		// Шаблон.FuncMap должен быть зарегистрирован в наборе шаблонов до вызова метода ParseFiles().
-		// Это означает, что мы должны использовать template.New() для создания пустого набора шаблонов,
-		// использовать метод Funcs() для регистрации шаблона.FuncMap, а затем проанализировать файл как обычно
-		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.tmpl")
-		// // Сгруппируйте файлы в набор шаблонов
-		// ts, err := template.ParseFiles("./ui/html/base.tmpl")
+
+		// Создайте срез, содержащий шаблоны путей к файлам для шаблонов, которые мы хотим проанализировать
+		patterns := []string{
+			"html/base.tmpl",
+			"html/partials/*.tmpl",
+			page,
+		}
+		//  Используйте ParseFS() вместо ParseFiles() для анализа файлов шаблонов
+		//  из встроенной файловой системы ui.Files.
+
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
-		// Вызовите ParseGlob() *для этого набора шаблонов*, чтобы добавить частичные шаблоны.
-		ts, err = ts.ParseGlob("./ui/html/partials/*.tmpl")
-		if err != nil {
-			return nil, err
-		}
-		// Чтобы добавить шаблон страницы, вызовите ParseFiles() *для этого набора шаблонов*.
-		ts, err = ts.ParseFiles(page)
-		if err != nil {
-			return nil, err
-		}
+
 		// Добавьте набор шаблонов на карту, используя в качестве ключа название страницы
 		// (например, 'home.tmpl').
 		cache[name] = ts
