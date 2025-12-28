@@ -11,6 +11,8 @@ import (
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
+
+	mux.HandleFunc("GET /ping", ping)
 	// fileServer := http.FileServer(http.Dir("./ui/static/"))
 	// mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 	// Add the authenticate() middleware to the chain.
