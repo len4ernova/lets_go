@@ -28,8 +28,8 @@ import (
 // make the SnippetModel object available to our handlers.
 type application struct {
 	logger         *slog.Logger
-	snippets       *models.SnippetModel
-	users          *models.UserModel
+	snippets       models.SnippetModelInterface // Use our new interface type.
+	users          models.UserModelInterface    // Use our new interface type.
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
