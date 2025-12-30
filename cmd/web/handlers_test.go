@@ -163,6 +163,8 @@ func TestUserSignup(t *testing.T) {
 	defer ts.Close()
 	_, _, body := ts.get(t, "/user/signup")
 	validCSRFToken := extractCSRFToken(t, body)
+	// 	t.Logf("CSRF token is: %q", validCSRFToken)
+
 	const (
 		validName     = "Bob"
 		validPassword = "validPa$$word"
